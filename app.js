@@ -4,6 +4,77 @@ let moneybalance = null;
 const express = require ("express");
 const app= express();
 const path= require('path');
+const mysql = require('mysql2');
+
+const connection = mysql.createConnection({
+   host: '127.0.0.1',
+   user: 'root',
+   password: '',
+   database: 'psit1',
+   port: 3360 
+});
+
+connection.connect((err)=> {
+    if (err) {
+        console.log('Erro ao conectar à base de dados:', err.message);
+    } else {
+        console.log('Conectado à base de dados MySQL!');
+    }
+});
+
+
+
+const myQuery = `SELECT * FROM ${}`
+
+connection.query(myQuery, (err, results) => {
+    if (err) {
+        return res.status(500).send('Erro ao buscar users: ' + err.message);
+    }
+
+    res.json(results);
+});
+
+app.get ('/users', (req,res) => {
+    const myQuery = `SELECT * FROM ${}`
+
+    connection.query(myQuery, (err, results) => {
+        if (err) {
+            return res.status(500).send('Erro ao buscar users: ' + err.message);
+        }
+    
+        res.json(results);
+    });
+});
+
+app.post ('/users', (req,res) => {
+    const myQuery = `SELECT * FROM ${} (first_name, last_name, email) values (req.body.first_name, req.body.last_name, req.body.email)`
+
+    connection.query(myQuery, (err, results) => {
+        if (err) {
+            return res.status(500).send('Erro ao buscar users: ' + err.message);
+        }
+    
+        res.json(results);
+    });
+});
+
+app.put ('/users/:id', (req,res) => {
+    const reqid= req.params.id;
+
+    const myQuery = `SELECT * FROM ${} (first_name, last_name, email) values (req.body.first_name, req.body.last_name, req.body.email)`
+
+    connection.query(myQuery, (err, results) => {
+        if (err) {
+            return res.status(500).send('Erro ao buscar users: ' + err.message);
+        }
+    
+        res.json(results);
+    });
+});
+
+app.delete ('/users/:id', (req,res) => {
+
+});
 
 app.use(express.json())
 
@@ -12,7 +83,7 @@ app.listen(PORT,()=> {
     console.log(`Servidor a correr em http://localhost:${PORT}`);
 });
 
-app.get ('/', (req, res)=> {
+app.get ('/', (req,res)=> {
     res.sendFile(path.join(__dirname,'index.html'));
 });
 
@@ -82,25 +153,81 @@ app.delete ('/balance', (req,res)=> {
     
 });
 
-const users = [ 
+const users=[
+ 
     {
+ 
         id: 0,
-        first_name: 'John',
-        last_name: 'Doe',
-        email: 'johndoe@example.com',
+        first_name:"John",
+        last_name:"Doe",
+        email:"johndoe@example.com"
     },
+ 
     {
-        id: 1,
-        first_name: 'Alice',
-        last_name: 'Smith',
-        email: 'alicesmith@example.com',
-    },
-];
-
-app.get ('/users', (req,res)=> {
+        id:1,
+        first_name:"Alice",
+        last_name:"Smith",
+        email:"alicesmith@example.com"
+ 
+    }
+]
+ 
+app.get('/users', (req,res)=>{
+   
     res.send(users);
 });
-
-app.post ('/users', (req,res)=> {
-
+ 
+app.put('/users', (req,res)=>{
+ 
+    for (let i = 0 ; i<users.length;i++){
+ 
+        if(users[i].id==req.body.id){
+            if(req.body.first_name!=null){
+                users[i].first_name=req.body.first_name;
+            }
+ 
+ 
+            if(req.body.last_name!=null){
+                users[i].last_name=req.body.last_name;
+            }
+ 
+            if(req.body.email!=null){
+                users[i].email=req.body.email;
+            }
+ 
+           
+ 
+            res.sendStatus(200);
+ 
+            return;
+        }
+    }
+ 
+ 
+    res.sendStatus(400);
+   
+   
+   
 });
+ 
+app.post('/users', (req,res)=>{
+   
+    users.push(req.body);
+    res.sendStatus(200);
+});
+ 
+app.delete('/users', (req,res)=>{
+   
+ 
+    for (let i = 0 ; i<users.length;i++){
+ 
+        if(users[i].id==req.body.id){
+            users.splice(i,1);
+            res.sendStatus(200);
+            return;
+        }
+    }
+    res.sendStatus(400);
+   
+});
+
